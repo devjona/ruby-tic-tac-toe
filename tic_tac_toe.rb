@@ -84,6 +84,9 @@ module TicTacToe
     end
   end
 
+  # You probably don't need this to be a class.
+  # If you want it in a separate file, look into that
+  # It's simple: Takes an array, spits out the visual.
   class Display
     # This is to show the board on terminal
     # Takes array from Board and renders it appropriately
