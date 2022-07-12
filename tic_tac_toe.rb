@@ -45,12 +45,15 @@ module TicTacToe
       puts "Let's play!!! It's #{@current_player.name}'s turn!"
       puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}"
 
-      @display.render_board
-      @board.mark_square(gets.chomp.to_i, @current_player.letter)
-      binding.pry
-    end
+      @display.render_board(@board.show_board)
+      player_selection = gets.chomp.to_i
+      @board.mark_square(player_selection, @current_player.letter)
 
-    # self.play_game
+      @display.render_board(@board.show_board)
+      binding.pry
+
+
+    end
   end
 
   class Player
@@ -64,7 +67,7 @@ module TicTacToe
 
   class Board
     def initialize
-      @board_slots = Array.new(9) { '' }
+      @board_slots = (1..9).to_a
     end
 
     def show_board
@@ -72,27 +75,33 @@ module TicTacToe
     end
 
     def mark_square(slot, letter)
-      @board_slots[slot - 1] = letter
+      # Need logic here prevent user from overriding opponent's square
+      if @board_slots[slot - 1].is_a? Numeric
+        @board_slots[slot - 1] = letter
+      else
+        puts 'That spot is taken'
+      end
     end
   end
 
   class Display
     # This is to show the board on terminal
+    # Takes array from Board and renders it appropriately
+    # OR
+    # It can just take a slot/letter at a time and update itself...
     def initialize
-
     end
 
-    def render_board
+    def render_board(board_slots)
       puts "
-       1 | 2 | 3
+       #{board_slots[0]} | #{board_slots[1]} | #{board_slots[2]}
       -----------
-       4 | 5 | 6
+       #{board_slots[3]} | #{board_slots[4]} | #{board_slots[5]}
       -----------
-       7 | 8 | 9
+       #{board_slots[6]} | #{board_slots[7]} | #{board_slots[8]}
       "
+
     end
-
-
   end
 
   # Game.new
