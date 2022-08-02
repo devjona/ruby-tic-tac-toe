@@ -50,6 +50,7 @@ module TicTacToe
     def check_for_win_or_tie
       puts 'Checking for winning combo...'
 
+      # Always check for winning combos first
       WINNING_COMBOS.each do |combo|
         next unless combo.all? { |num| @current_player.selections.include?(num) }
 
@@ -58,6 +59,7 @@ module TicTacToe
         break
       end
 
+      # If we don't have a winner and no numers are left, it's a tie.
       if @board.board_slots.any? { |slot| slot.is_a? Numeric }
         nil
       else
@@ -77,9 +79,10 @@ module TicTacToe
     def get_and_validate_player_selection
       puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}: "
       @display.render_board(@board.show_board)
-      player_selection = gets.chomp.to_i - 1
 
       # Validate that the player selected a slot... 1-9. It can't be any other character.
+      player_selection = gets.chomp.to_i - 1
+
       if @board.board_slots[player_selection].is_a? Numeric
         @board.mark_square(player_selection, @current_player.letter)
         @current_player.selections.push(player_selection)
@@ -90,11 +93,10 @@ module TicTacToe
     end
 
     def play_game
+      puts "Let's play!!!\n\nIt's #{@current_player.name}'s turn!"
       while @no_winner_or_tie
-        puts "Let's play!!!\n\nIt's #{@current_player.name}'s turn!"
 
         get_and_validate_player_selection
-        @display.render_board(@board.show_board)
         check_for_win_or_tie
       end
 
