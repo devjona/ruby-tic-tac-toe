@@ -1,4 +1,7 @@
 require 'pry'
+require_relative 'board'
+require_relative 'display'
+require_relative 'player'
 
 module TicTacToe
   # These are 0-indexed 3x3 grid:
@@ -101,59 +104,11 @@ module TicTacToe
       end
 
       if @winner
-        puts "#{@current_player.name} is the winner! Look at the winning board! \n"
+        puts "#{@current_player.name} is the WINNER! Look at the winning board! \n"
         @display.render_board(@board.show_board)
       end
 
       puts "We have a tie; let's figure out how to start a fresh game or quit." if @tie
-    end
-  end
-
-  class Player
-    attr_reader(:name, :letter)
-    attr_accessor(:selections)
-
-    def initialize(name, letter)
-      @name = name
-      @letter = letter
-      @selections = []
-    end
-  end
-
-  class Board
-    attr_reader(:board_slots)
-
-    def initialize
-      @board_slots = (1..9).to_a
-    end
-
-    def show_board
-      @board_slots
-    end
-
-    def mark_square(slot, letter)
-      @board_slots[slot] = letter
-    end
-  end
-
-  # You probably don't need this to be a class.
-  # If you want it in a separate file, look into that
-  # It's simple: Takes an array, spits out the visual.
-  class Display
-    # This is to show the board on terminal
-    # Takes array from Board and renders it appropriately
-    # OR
-    # It can just take a slot/letter at a time and update itself...
-    def initialize; end
-
-    def render_board(board_slots)
-      puts "
-       #{board_slots[0]} | #{board_slots[1]} | #{board_slots[2]}
-      -----------
-       #{board_slots[3]} | #{board_slots[4]} | #{board_slots[5]}
-      -----------
-       #{board_slots[6]} | #{board_slots[7]} | #{board_slots[8]}
-      "
     end
   end
 
