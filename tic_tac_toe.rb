@@ -1,15 +1,19 @@
 require 'pry'
 
 module TicTacToe
+  # These are 0-indexed 3x3 grid:
+  # 0 1 2
+  # 3 4 5
+  # 6 7 8
   WINNING_COMBOS = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
     [1, 4, 7],
     [2, 5, 8],
-    [3, 6, 9],
-    [1, 5, 9],
-    [3, 5, 7]
+    [0, 4, 8],
+    [2, 4, 6]
   ]
 
   class Game
@@ -18,6 +22,9 @@ module TicTacToe
       set_player_names
       @board = Board.new
       @display = Display.new
+      @tie = nil
+      @winner = nil
+      @no_winner_or_tie = true
     end
 
     def game_start_greeting
@@ -29,43 +36,91 @@ module TicTacToe
     end
 
     def set_player_names
-      # puts "What's the first player's name?"
       player_name_question('first')
-      @player1 = Player.new(gets.chomp, 'x')
+      @player1 = Player.new(gets.chomp, 'X')
       puts "Player 1 is #{@player1.name}"
 
       player_name_question('second')
-      @player2 = Player.new(gets.chomp, 'o')
+      @player2 = Player.new(gets.chomp, 'O')
       puts "Player 2 is #{@player2.name}"
 
       @current_player = @player1
     end
 
+    def check_for_win_or_tie
+      puts 'Checking for winning combo...'
+
+      WINNING_COMBOS.each do |combo|
+        next unless combo.all? { |num| @current_player.selections.include?(num) }
+
+        @winner = @current_player
+        @no_winner_or_tie = false
+        break
+      end
+
+      if @board.board_slots.any? { |slot| slot.is_a? Numeric }
+        nil
+      else
+        @tie = true
+        @no_winner_or_tie = false
+      end
+
+      if !@winner.nil?
+        nil
+      elsif !@tie.nil?
+        nil
+      else
+        @current_player = @current_player == @player1 ? @player2 : @player1
+      end
+    end
+
+    def get_and_validate_player_selection
+      puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}: "
+      @display.render_board(@board.show_board)
+      player_selection = gets.chomp.to_i - 1
+
+      # Validate that the player selected a slot... 1-9. It can't be any other character.
+      if @board.board_slots[player_selection].is_a? Numeric
+        @board.mark_square(player_selection, @current_player.letter)
+        @current_player.selections.push(player_selection)
+      else
+        puts 'That spot is taken; choose another available square.'
+        get_and_validate_player_selection
+      end
+    end
+
     def play_game
-      puts "Let's play!!! It's #{@current_player.name}'s turn!"
-      puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}"
+      while @no_winner_or_tie
+        puts "Let's play!!!\n\nIt's #{@current_player.name}'s turn!"
 
-      @display.render_board(@board.show_board)
-      player_selection = gets.chomp.to_i
-      @board.mark_square(player_selection, @current_player.letter)
+        get_and_validate_player_selection
+        @display.render_board(@board.show_board)
+        check_for_win_or_tie
+      end
 
-      @display.render_board(@board.show_board)
-      binding.pry
+      if @winner
+        puts "#{@current_player.name} is the winner! Look at the winning board! \n"
+        @display.render_board(@board.show_board)
+      end
 
-
+      puts "We have a tie; let's figure out how to start a fresh game or quit." if @tie
     end
   end
 
   class Player
     attr_reader(:name, :letter)
+    attr_accessor(:selections)
 
     def initialize(name, letter)
       @name = name
       @letter = letter
+      @selections = []
     end
   end
 
   class Board
+    attr_reader(:board_slots)
+
     def initialize
       @board_slots = (1..9).to_a
     end
@@ -75,12 +130,7 @@ module TicTacToe
     end
 
     def mark_square(slot, letter)
-      # Need logic here prevent user from overriding opponent's square
-      if @board_slots[slot - 1].is_a? Numeric
-        @board_slots[slot - 1] = letter
-      else
-        puts 'That spot is taken'
-      end
+      @board_slots[slot] = letter
     end
   end
 
@@ -92,8 +142,7 @@ module TicTacToe
     # Takes array from Board and renders it appropriately
     # OR
     # It can just take a slot/letter at a time and update itself...
-    def initialize
-    end
+    def initialize; end
 
     def render_board(board_slots)
       puts "
@@ -103,7 +152,6 @@ module TicTacToe
       -----------
        #{board_slots[6]} | #{board_slots[7]} | #{board_slots[8]}
       "
-
     end
   end
 
