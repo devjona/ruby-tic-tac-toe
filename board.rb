@@ -1,3 +1,4 @@
+# Handles creating, displaying, updating board slots
 class Board
   attr_reader(:board_slots)
 

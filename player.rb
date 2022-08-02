@@ -1,3 +1,4 @@
+# Player class, keeps track of player's selections
 class Player
   attr_reader(:name, :letter)
   attr_accessor(:selections)

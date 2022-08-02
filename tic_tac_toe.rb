@@ -3,6 +3,7 @@ require_relative 'board'
 require_relative 'display'
 require_relative 'player'
 
+# module to encapsulate TicTacToe logic
 module TicTacToe
   # These are 0-indexed 3x3 grid:
   # 0 1 2
@@ -17,8 +18,9 @@ module TicTacToe
     [2, 5, 8],
     [0, 4, 8],
     [2, 4, 6]
-  ]
+  ].freeze
 
+  # The main class for TicTacToe where most logic lives
   class Game
     def initialize
       game_start_greeting
@@ -50,10 +52,7 @@ module TicTacToe
       @current_player = @player1
     end
 
-    def check_for_win_or_tie
-      puts 'Checking for winning combo...'
-
-      # Always check for winning combos first
+    def check_for_win
       WINNING_COMBOS.each do |combo|
         next unless combo.all? { |num| @current_player.selections.include?(num) }
 
@@ -61,15 +60,25 @@ module TicTacToe
         @no_winner_or_tie = false
         break
       end
+    end
 
-      # If we don't have a winner and no numers are left, it's a tie.
+    def check_for_tie
       if @board.board_slots.any? { |slot| slot.is_a? Numeric }
         nil
       else
         @tie = true
         @no_winner_or_tie = false
       end
+    end
 
+    def check_for_win_or_tie
+      puts 'Checking for winning combo...'
+
+      # Always check for winning combos first
+      check_for_win
+      check_for_tie
+
+      # Put in own method? Or leave here.
       if !@winner.nil?
         nil
       elsif !@tie.nil?
@@ -79,7 +88,7 @@ module TicTacToe
       end
     end
 
-    def get_and_validate_player_selection
+    def handle_player_selection
       puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}: "
       @display.render_board(@board.show_board)
 
@@ -91,7 +100,7 @@ module TicTacToe
         @current_player.selections.push(player_selection)
       else
         puts 'That spot is taken; choose another available square.'
-        get_and_validate_player_selection
+        handle_player_selection
       end
     end
 
@@ -99,7 +108,7 @@ module TicTacToe
       puts "Let's play!!!\n\nIt's #{@current_player.name}'s turn!"
       while @no_winner_or_tie
 
-        get_and_validate_player_selection
+        handle_player_selection
         check_for_win_or_tie
       end
 
