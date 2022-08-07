@@ -88,13 +88,32 @@ module TicTacToe
       end
     end
 
+    def validate_player_selection
+      # Prompt, tell player it has to be 1-9, where there isn't an X or 0
+      # Validate the gets.chomp
+      # Validate that the player selected a slot... 1-9. It can't be any other character.
+      player_selection = gets.chomp.to_i - 1
+    end
+
+    def update_board_with_player_selection(selection)
+      if @board.board_slots[player_selection].is_a? Numeric
+        @board.mark_square(player_selection, @current_player.letter)
+        @current_player.selections.push(player_selection)
+      else
+        puts 'That spot is taken; choose another available square.'
+        handle_player_selection
+      end
+    end
+
     def handle_player_selection
       puts "#{@current_player.name}, pick a place to put your #{@current_player.letter}: "
       @display.render_board(@board.show_board)
 
       # Validate that the player selected a slot... 1-9. It can't be any other character.
       player_selection = gets.chomp.to_i - 1
+      # validate_player_selection
 
+      # update_board_with_player_selection
       if @board.board_slots[player_selection].is_a? Numeric
         @board.mark_square(player_selection, @current_player.letter)
         @current_player.selections.push(player_selection)
